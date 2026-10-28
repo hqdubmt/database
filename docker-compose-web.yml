@@ -1,0 +1,50 @@
+services:
+  # 1. GIAO DIỆN WEB CHO POSTGRESQL (pgAdmin)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin_web
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: super_secret_pgadmin_password
+    ports:
+      - "8080:80"
+    networks:
+      - app_network
+
+  # 2. GIAO DIỆN WEB CHO MONGODB (Mongo Express)
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo_express_web
+    restart: always
+    env_file:
+      - .env
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo # Đã sửa thành 'mongo' để tìm đúng container của bạn
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      ME_CONFIG_BASICAUTH_USERNAME: webadmin
+      ME_CONFIG_BASICAUTH_PASSWORD: super_secret_mongoexpress_password
+    ports:
+      - "8081:8081"
+    networks:
+      - app_network
+
+  # 3. GIAO DIỆN WEB CHO REDIS (Redis Commander)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: redis_commander_web
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - REDIS_HOSTS=local:redis:6379:${REDIS_PASSWORD}
+    ports:
+      - "8082:8081"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    external: true
